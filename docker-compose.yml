@@ -1,0 +1,27 @@
+services:
+  postgres: 
+    image: postgres:16 
+    container_name: insurance_postgres
+    restart: always 
+    ports:
+      -"5432:5432"
+  environment: 
+    POSTGRES_DB: insurance_db
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+  volumes: 
+    - postgres_data:/var/lib/postgresql/data
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: insurance_rabbitmq
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+    volumes:
+    postgres_data:
+    
