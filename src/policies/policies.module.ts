@@ -20,17 +20,24 @@ import { PolicyController } from './infrastructure/controllers/policy.controller
 import { PolicyMapper } from './infrastructure/persistence/policy.mapper';
 import { PolicyTypeormEntity } from './infrastructure/persistence/policy.typeorm-entity';
 import { PolicyTypeormRepository } from './infrastructure/persistence/policy.typeorm-repository';
+import { GetPolicyByIdUseCase } from './application/use-case/get-policy-by-id.use-case';
+import { GetPoliciesByCustomerUseCase } from './application/use-case/get-policies-by-customer.use-case';
+import { ChangePolicyStatusUseCase } from './application/use-case/change-policy-status.use-case';
+import { EventsModule } from '../shared/events/events.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([PolicyTypeormEntity]),
     CustomersModule,
+    EventsModule,
   ],
   controllers: [PolicyController],
   providers: [
     PolicyMapper,
     CreatePolicyUseCase,
-
+    GetPolicyByIdUseCase,
+    GetPoliciesByCustomerUseCase,
+    ChangePolicyStatusUseCase,
     AutoPolicyFactory,
     LifePolicyFactory,
     HomePolicyFactory,
@@ -83,6 +90,7 @@ import { PolicyTypeormRepository } from './infrastructure/persistence/policy.typ
         StandardRatingStrategy,
         RiskBasedRatingStrategy,
         LoyaltyRatingStrategy,
+      
       ],
     },
   ],

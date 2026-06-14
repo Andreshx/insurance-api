@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common/pipes/validation.pipe';
 import { SwaggerModule } from 'node_modules/@nestjs/swagger/dist/swagger-module';
 import { DocumentBuilder } from 'node_modules/@nestjs/swagger/dist/document-builder';
+import { DomainExceptionFilter } from './shared/filters/domain-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -24,6 +25,7 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api/docs', app, document);
+  app.useGlobalFilters(new DomainExceptionFilter());
 
   await app.listen(process.env.PORT ?? 3000);
   
