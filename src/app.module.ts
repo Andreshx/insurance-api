@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { InitialSchema1720000000000 } from './shared/persistence/migrations/initial-schema.migration';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 import { CustomersModule } from './customers/customers.module';
 import { PoliciesModule } from './policies/policies.module';
 import { NotificationsModule } from './notifications/notifications.module';
@@ -32,5 +34,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     NotificationsModule,
     PoliciesModule,
   ],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
