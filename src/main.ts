@@ -1,8 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common/pipes/validation.pipe';
-import { SwaggerModule } from 'node_modules/@nestjs/swagger/dist/swagger-module';
-import { DocumentBuilder } from 'node_modules/@nestjs/swagger/dist/document-builder';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { DomainExceptionFilter } from './shared/filters/domain-exception.filter';
 
 async function bootstrap() {
