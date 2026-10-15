@@ -6,16 +6,15 @@ import { DomainExceptionFilter } from './shared/filters/domain-exception.filter'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
-  app.setGlobalPrefix('api'); 
+
+  app.setGlobalPrefix('api');
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
-      
-    })
-  ); 
+    }),
+  );
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Insurance API')
     .setDescription('API documentation for the Insurance application')
@@ -27,6 +26,8 @@ async function bootstrap() {
   app.useGlobalFilters(new DomainExceptionFilter());
 
   await app.listen(process.env.PORT ?? 3000);
-  
 }
-bootstrap();
+bootstrap().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

@@ -31,16 +31,15 @@ export class RabbitMqEventPublisher
     });
   }
 
-  async publish<TPayload>(
-    topic: string,
-    payload: TPayload,
-  ): Promise<void> {
+  publish<TPayload>(topic: string, payload: TPayload): Promise<void> {
     const message = Buffer.from(JSON.stringify(payload));
 
     this.channel.publish(this.exchange, topic, message, {
       persistent: true,
       contentType: 'application/json',
     });
+
+    return Promise.resolve();
   }
 
   async onModuleDestroy(): Promise<void> {

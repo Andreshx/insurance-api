@@ -1,4 +1,9 @@
-import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleDestroy,
+  OnModuleInit,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Channel, ChannelModel, ConsumeMessage, connect } from 'amqplib';
 
@@ -42,7 +47,13 @@ export class AuditConsumer implements OnModuleInit, OnModuleDestroy {
       return;
     }
 
-    const payload = JSON.parse(message.content.toString());
+    const payload = JSON.parse(message.content.toString()) as {
+      policyId: string;
+      branch: string;
+      oldStatus: string;
+      newStatus: string;
+      timestamp: string;
+    };
 
     this.logger.log(
       `Audit trace: policyId=${payload.policyId}, branch=${payload.branch}, transition=${payload.oldStatus}->${payload.newStatus}, timestamp=${payload.timestamp}`,

@@ -7,8 +7,7 @@ export class PolicyNumberSequencer {
 
   static getInstance(): PolicyNumberSequencer {
     if (!PolicyNumberSequencer.instance) {
-      PolicyNumberSequencer.instance =
-        new PolicyNumberSequencer();
+      PolicyNumberSequencer.instance = new PolicyNumberSequencer();
     }
 
     return PolicyNumberSequencer.instance;
@@ -19,17 +18,11 @@ export class PolicyNumberSequencer {
 
     const year = now.getFullYear();
 
-    const month = String(
-      now.getMonth() + 1,
-    ).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
 
-    const day = String(
-      now.getDate(),
-    ).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
 
-    const sequence = String(
-      this.sequence++,
-    ).padStart(6, '0');
+    const sequence = String(this.sequence++).padStart(6, '0');
 
     return `POL-${year}${month}${day}-${sequence}`;
   }

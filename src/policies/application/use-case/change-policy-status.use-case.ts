@@ -81,7 +81,10 @@ export class ChangePolicyStatusUseCase {
       [`${PolicyStatus.QUOTED}->${PolicyStatus.ISSUED}`, 'policy.issued'],
       [`${PolicyStatus.ISSUED}->${PolicyStatus.ACTIVE}`, 'policy.activated'],
       [`${PolicyStatus.ACTIVE}->${PolicyStatus.SUSPENDED}`, 'policy.suspended'],
-      [`${PolicyStatus.SUSPENDED}->${PolicyStatus.ACTIVE}`, 'policy.reactivated'],
+      [
+        `${PolicyStatus.SUSPENDED}->${PolicyStatus.ACTIVE}`,
+        'policy.reactivated',
+      ],
     ]);
 
     const topic = topics.get(`${oldStatus}->${newStatus}`);

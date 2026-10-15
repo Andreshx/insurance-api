@@ -6,17 +6,11 @@ export class CancelledState extends PolicyStatePort {
   readonly status = PolicyStatus.CANCELLED;
 
   issue(): PolicyStatePort {
-    throw new InvalidStateTransitionException(
-      this.status,
-      PolicyStatus.ISSUED,
-    );
+    throw new InvalidStateTransitionException(this.status, PolicyStatus.ISSUED);
   }
 
   activate(): PolicyStatePort {
-    throw new InvalidStateTransitionException(
-      this.status,
-      PolicyStatus.ACTIVE,
-    );
+    throw new InvalidStateTransitionException(this.status, PolicyStatus.ACTIVE);
   }
 
   suspend(): PolicyStatePort {

@@ -1,4 +1,9 @@
-import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleDestroy,
+  OnModuleInit,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Channel, ChannelModel, ConsumeMessage, connect } from 'amqplib';
 
@@ -42,7 +47,12 @@ export class NotificationsConsumer implements OnModuleInit, OnModuleDestroy {
       return;
     }
 
-    const payload = JSON.parse(message.content.toString());
+    const payload = JSON.parse(message.content.toString()) as {
+      customerId: string;
+      policyNumber: string;
+      oldStatus: string;
+      newStatus: string;
+    };
 
     this.logger.log(
       `Notification sent to customer ${payload.customerId} for policy ${payload.policyNumber}: ${payload.oldStatus} -> ${payload.newStatus}`,

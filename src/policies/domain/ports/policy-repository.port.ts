@@ -7,5 +7,7 @@ export abstract class PolicyRepositoryPort {
 
   abstract findByCustomerId(customerId: string): Promise<PolicyModel[]>;
 
-  abstract findByPolicyNumber(policyNumber: string): Promise<PolicyModel | null>;
+  abstract findByPolicyNumber(
+    policyNumber: string,
+  ): Promise<PolicyModel | null>;
 }

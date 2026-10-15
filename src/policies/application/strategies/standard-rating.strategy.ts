@@ -9,12 +9,14 @@ export class StandardRatingStrategy extends RatingStrategyPort {
 
   validate(_riskProfile: RiskProfile): void {
     // STANDARD does not require extra validation.
+    void _riskProfile;
   }
 
   calculatePremium(
     baseMonthlyPremium: number,
     _riskProfile: RiskProfile,
   ): number {
+    void _riskProfile;
     return baseMonthlyPremium;
   }
 }

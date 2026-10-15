@@ -20,9 +20,7 @@ export class CustomerResponseDto {
   @ApiProperty()
   updatedAt!: Date;
 
-  static fromDomain(
-    customer: CustomerModel,
-  ): CustomerResponseDto {
+  static fromDomain(customer: CustomerModel): CustomerResponseDto {
     const dto = new CustomerResponseDto();
 
     dto.id = customer.getId();

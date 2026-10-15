@@ -13,7 +13,6 @@ import { NotificationsModule } from './notifications/notifications.module';
     }),
 
     TypeOrmModule.forRootAsync({
-
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
@@ -34,4 +33,4 @@ import { NotificationsModule } from './notifications/notifications.module';
     PoliciesModule,
   ],
 })
-export class AppModule { }
+export class AppModule {}

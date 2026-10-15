@@ -13,9 +13,6 @@ import { GetPoliciesByCustomerUseCase } from '../../application/use-case/get-pol
 import { ChangePolicyStatusDto } from '../../application/dtos/change-policy-status.dto';
 import { ChangePolicyStatusUseCase } from '../../application/use-case/change-policy-status.use-case';
 
-
-
-
 @ApiTags('policies')
 @Controller('policies')
 export class PolicyController {
@@ -24,7 +21,7 @@ export class PolicyController {
     private readonly getPolicyByIdUseCase: GetPolicyByIdUseCase,
     private readonly getPoliciesByCustomerUseCase: GetPoliciesByCustomerUseCase,
     private readonly changePolicyStatusUseCase: ChangePolicyStatusUseCase,
-  ) { }
+  ) {}
 
   @Post()
   @ApiCreatedResponse({ type: PolicyResponseDto })
@@ -42,9 +39,7 @@ export class PolicyController {
   @Get(':id')
   @ApiOkResponse({ type: PolicyResponseDto })
   @ApiNotFoundResponse({ description: 'Policy not found' })
-  async getById(
-    @Param('id') id: string,
-  ): Promise<PolicyResponseDto> {
+  async getById(@Param('id') id: string): Promise<PolicyResponseDto> {
     const policy = await this.getPolicyByIdUseCase.execute(id);
 
     return PolicyResponseDto.fromDomain(policy);
@@ -55,7 +50,8 @@ export class PolicyController {
   async getByCustomer(
     @Param('customerId') customerId: string,
   ): Promise<PolicyResponseDto[]> {
-    const policies = await this.getPoliciesByCustomerUseCase.execute(customerId);
+    const policies =
+      await this.getPoliciesByCustomerUseCase.execute(customerId);
 
     return policies.map((policy) => PolicyResponseDto.fromDomain(policy));
   }
@@ -70,7 +66,10 @@ export class PolicyController {
     @Param('id') id: string,
     @Body() changePolicyStatusDto: ChangePolicyStatusDto,
   ): Promise<PolicyResponseDto> {
-    const policy = await this.changePolicyStatusUseCase.execute(id, changePolicyStatusDto);
+    const policy = await this.changePolicyStatusUseCase.execute(
+      id,
+      changePolicyStatusDto,
+    );
 
     return PolicyResponseDto.fromDomain(policy);
   }

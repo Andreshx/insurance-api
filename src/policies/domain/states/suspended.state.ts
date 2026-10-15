@@ -8,10 +8,7 @@ export class SuspendedState extends PolicyStatePort {
   readonly status = PolicyStatus.SUSPENDED;
 
   issue(): PolicyStatePort {
-    throw new InvalidStateTransitionException(
-      this.status,
-      PolicyStatus.ISSUED,
-    );
+    throw new InvalidStateTransitionException(this.status, PolicyStatus.ISSUED);
   }
 
   activate(): PolicyStatePort {

@@ -90,7 +90,6 @@ import { EventsModule } from '../shared/events/events.module';
         StandardRatingStrategy,
         RiskBasedRatingStrategy,
         LoyaltyRatingStrategy,
-      
       ],
     },
   ],

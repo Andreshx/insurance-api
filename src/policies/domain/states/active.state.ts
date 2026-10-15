@@ -8,10 +8,7 @@ export class ActiveState extends PolicyStatePort {
   readonly status = PolicyStatus.ACTIVE;
 
   issue(): PolicyStatePort {
-    throw new InvalidStateTransitionException(
-      this.status,
-      PolicyStatus.ISSUED,
-    );
+    throw new InvalidStateTransitionException(this.status, PolicyStatus.ISSUED);
   }
 
   activate(): PolicyStatePort {

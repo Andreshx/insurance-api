@@ -12,10 +12,7 @@ export class QuotedState extends PolicyStatePort {
   }
 
   activate(): PolicyStatePort {
-    throw new InvalidStateTransitionException(
-      this.status,
-      PolicyStatus.ACTIVE,
-    );
+    throw new InvalidStateTransitionException(this.status, PolicyStatus.ACTIVE);
   }
 
   suspend(): PolicyStatePort {
