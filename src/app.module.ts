@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm/dist/typeorm.module';
+import { InitialSchema1720000000000 } from './shared/persistence/migrations/initial-schema.migration';
 import { CustomersModule } from './customers/customers.module';
 import { PoliciesModule } from './policies/policies.module';
 import { NotificationsModule } from './notifications/notifications.module';
@@ -22,7 +23,9 @@ import { NotificationsModule } from './notifications/notifications.module';
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_NAME'),
         autoLoadEntities: true,
-        synchronize: true,
+        synchronize: false,
+        migrationsRun: true,
+        migrations: [InitialSchema1720000000000],
       }),
     }),
 

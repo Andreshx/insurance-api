@@ -22,14 +22,14 @@ export class PolicyTypeormEntity {
   @Column({ name: 'customer_id', type: 'uuid' })
   customerId!: string;
 
-  @Column({ type: 'enum', enum: PolicyBranch })
+  @Column({ type: 'varchar', length: 30 })
   branch!: PolicyBranch;
 
-  @Column({ name: 'rating_strategy', type: 'enum', enum: RatingStrategyName })
+  @Column({ name: 'rating_strategy', type: 'varchar', length: 30 })
   ratingStrategy!: RatingStrategyName;
 
   @Index()
-  @Column({ type: 'enum', enum: PolicyStatus })
+  @Column({ type: 'varchar', length: 30 })
   status!: PolicyStatus;
 
   @Column({ type: 'jsonb' })
