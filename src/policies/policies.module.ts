@@ -22,7 +22,9 @@ import { PolicyTypeormEntity } from './infrastructure/persistence/policy.typeorm
 import { PolicyTypeormRepository } from './infrastructure/persistence/policy.typeorm-repository';
 import { GetPolicyByIdUseCase } from './application/use-case/get-policy-by-id.use-case';
 import { GetPoliciesByCustomerUseCase } from './application/use-case/get-policies-by-customer.use-case';
+import { GetPoliciesUseCase } from './application/use-case/get-policies.use-case';
 import { ChangePolicyStatusUseCase } from './application/use-case/change-policy-status.use-case';
+import { PolicyNumberInitializer } from './application/initializers/policy-number.initializer';
 import { EventsModule } from '../shared/events/events.module';
 
 @Module({
@@ -37,7 +39,9 @@ import { EventsModule } from '../shared/events/events.module';
     CreatePolicyUseCase,
     GetPolicyByIdUseCase,
     GetPoliciesByCustomerUseCase,
+    GetPoliciesUseCase,
     ChangePolicyStatusUseCase,
+    PolicyNumberInitializer,
     AutoPolicyFactory,
     LifePolicyFactory,
     HomePolicyFactory,

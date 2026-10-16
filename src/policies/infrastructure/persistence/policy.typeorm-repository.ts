@@ -40,6 +40,14 @@ export class PolicyTypeormRepository extends PolicyRepositoryPort {
     return entities.map((entity) => this.mapper.toDomain(entity));
   }
 
+  async findAll(): Promise<PolicyModel[]> {
+    const entities = await this.repository.find({
+      order: { createdAt: 'DESC' },
+    });
+
+    return entities.map((entity) => this.mapper.toDomain(entity));
+  }
+
   async findByPolicyNumber(policyNumber: string): Promise<PolicyModel | null> {
     const entity = await this.repository.findOne({
       where: { policyNumber },

@@ -26,4 +26,12 @@ export class PolicyNumberSequencer {
 
     return `POL-${year}${month}${day}-${sequence}`;
   }
+
+  setSequence(sequence: number): void {
+    this.sequence = sequence;
+  }
+
+  getSequence(): number {
+    return this.sequence;
+  }
 }

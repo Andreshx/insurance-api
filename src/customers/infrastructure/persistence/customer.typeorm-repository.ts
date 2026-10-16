@@ -38,4 +38,12 @@ export class CustomerTypeormRepository extends CustomerRepositoryPort {
 
     return entity ? this.mapper.toDomain(entity) : null;
   }
+
+  async findAll(): Promise<CustomerModel[]> {
+    const entities = await this.repository.find({
+      order: { createdAt: 'DESC' },
+    });
+
+    return entities.map((entity) => this.mapper.toDomain(entity));
+  }
 }

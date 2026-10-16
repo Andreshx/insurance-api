@@ -18,6 +18,7 @@ import { CreateCustomerDto } from '../../application/dtos/create-customer.dto';
 import { CustomerResponseDto } from '../../application/dtos/customer-response.dto';
 import { CreateCustomerUseCase } from '../../application/use-cases/create-customer.use-case';
 import { GetCustomerByIdUseCase } from '../../application/use-cases/get-customer-by-id.use-case';
+import { GetCustomersUseCase } from '../../application/use-cases/get-customers.use-case';
 
 @ApiTags('customers')
 @Controller('customers')
@@ -25,6 +26,7 @@ export class CustomerController {
   constructor(
     private readonly createCustomerUseCase: CreateCustomerUseCase,
     private readonly getCustomerByIdUseCase: GetCustomerByIdUseCase,
+    private readonly getCustomersUseCase: GetCustomersUseCase,
   ) {}
 
   @Post()
@@ -37,6 +39,17 @@ export class CustomerController {
       await this.createCustomerUseCase.execute(createCustomerDto);
 
     return CustomerResponseDto.fromDomain(customer);
+  }
+
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ type: [CustomerResponseDto] })
+  async findAll(): Promise<CustomerResponseDto[]> {
+    const customers = await this.getCustomersUseCase.execute();
+
+    return customers.map((customer) =>
+      CustomerResponseDto.fromDomain(customer),
+    );
   }
 
   @Get(':id')

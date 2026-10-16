@@ -6,4 +6,6 @@ export abstract class CustomerRepositoryPort {
   abstract findById(id: string): Promise<CustomerModel | null>;
 
   abstract findByEmail(email: string): Promise<CustomerModel | null>;
+
+  abstract findAll(): Promise<CustomerModel[]>;
 }

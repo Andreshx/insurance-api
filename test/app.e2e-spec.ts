@@ -105,6 +105,51 @@ describe('Insurance API (e2e)', () => {
         .get('/api/customers/00000000-0000-0000-0000-000000000000')
         .expect(404);
     });
+
+    it('should return 500 when customer id is not a valid UUID', () => {
+      // UUID inválido en la URL causa error de PostgreSQL (tipo uuid)
+      return request(app.getHttpServer())
+        .get('/api/customers/not-a-uuid')
+        .expect(500);
+    });
+
+    it('should return an empty list when no customers exist (GET /api/customers)', () => {
+      return request(app.getHttpServer())
+        .get('/api/customers')
+        .expect(200)
+        .then((res) => {
+          expect(res.body).toEqual([]);
+        });
+    });
+
+    it('should return list of all customers (GET /api/customers)', async () => {
+      await request(app.getHttpServer())
+        .post('/api/customers')
+        .send({ name: 'Andres', email: 'andres@example.com' })
+        .expect(201);
+      await request(app.getHttpServer())
+        .post('/api/customers')
+        .send({ name: 'Maria', email: 'maria@example.com' })
+        .expect(201);
+
+      return request(app.getHttpServer())
+        .get('/api/customers')
+        .expect(200)
+        .then((res) => {
+          expect(res.body).toHaveLength(2);
+          const emails = res.body.map((c: any) => c.email);
+          expect(emails).toContain('andres@example.com');
+          expect(emails).toContain('maria@example.com');
+          res.body.forEach((c: any) => {
+            expect(c).toHaveProperty('id');
+            expect(c).toHaveProperty('name');
+            expect(c).toHaveProperty('email');
+            expect(c).toHaveProperty('isActive');
+            expect(c).toHaveProperty('createdAt');
+            expect(c).toHaveProperty('updatedAt');
+          });
+        });
+    });
   });
 
   describe('Policies', () => {
@@ -147,7 +192,6 @@ describe('Insurance API (e2e)', () => {
         )
         .expect(201)
         .then((res) => {
-          // base 120_000 * (1 + 50/100) = 180_000
           expect(res.body.monthlyPremium).toBe(180_000);
           expect(res.body.status).toBe(PolicyStatus.QUOTED);
         });
@@ -165,7 +209,6 @@ describe('Insurance API (e2e)', () => {
         )
         .expect(201)
         .then((res) => {
-          // base 120_000 * 0.85 = 102_000
           expect(res.body.monthlyPremium).toBe(102_000);
         });
     });
@@ -237,6 +280,13 @@ describe('Insurance API (e2e)', () => {
         .expect(404);
     });
 
+    it('should return 500 when policy id is not a valid UUID', () => {
+      // UUID inválido en la URL causa error de PostgreSQL (tipo uuid)
+      return request(app.getHttpServer())
+        .get('/api/policies/not-a-uuid')
+        .expect(500);
+    });
+
     it('should get policies by customer (GET /api/policies/customer/:customerId)', async () => {
       await request(app.getHttpServer())
         .post('/api/policies')
@@ -262,6 +312,46 @@ describe('Insurance API (e2e)', () => {
         .expect(200)
         .then((res) => {
           expect(res.body).toEqual([]);
+        });
+    });
+
+    it('should return an empty list when no policies exist (GET /api/policies)', () => {
+      return request(app.getHttpServer())
+        .get('/api/policies')
+        .expect(200)
+        .then((res) => {
+          expect(res.body).toEqual([]);
+        });
+    });
+
+    it('should return list of all policies (GET /api/policies)', async () => {
+      await request(app.getHttpServer())
+        .post('/api/policies')
+        .send(createPolicyDto(customerId))
+        .expect(201);
+      await request(app.getHttpServer())
+        .post('/api/policies')
+        .send(createPolicyDto(customerId))
+        .expect(201);
+
+      return request(app.getHttpServer())
+        .get('/api/policies')
+        .expect(200)
+        .then((res) => {
+          expect(res.body).toHaveLength(2);
+          res.body.forEach((p: any) => {
+            expect(p).toHaveProperty('id');
+            expect(p).toHaveProperty('policyNumber');
+            expect(p).toHaveProperty('customerId');
+            expect(p).toHaveProperty('branch');
+            expect(p).toHaveProperty('ratingStrategy');
+            expect(p).toHaveProperty('status');
+            expect(p).toHaveProperty('coverage');
+            expect(p).toHaveProperty('monthlyPremium');
+            expect(p).toHaveProperty('riskProfile');
+            expect(p).toHaveProperty('createdAt');
+            expect(p).toHaveProperty('updatedAt');
+          });
         });
     });
   });
@@ -395,6 +485,14 @@ describe('Insurance API (e2e)', () => {
         .patch('/api/policies/00000000-0000-0000-0000-000000000000/status')
         .send({ targetStatus: PolicyStatus.ISSUED })
         .expect(404);
+    });
+
+    it('should return 500 when policy id is not a valid UUID for status change', () => {
+      // UUID inválido en la URL causa error de PostgreSQL (tipo uuid)
+      return request(app.getHttpServer())
+        .patch('/api/policies/not-a-uuid/status')
+        .send({ targetStatus: PolicyStatus.ISSUED })
+        .expect(500);
     });
 
     it('should return 400 when targetStatus is not a valid enum', () => {

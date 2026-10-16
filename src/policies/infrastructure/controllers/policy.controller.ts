@@ -1,4 +1,13 @@
-import { Body, Controller, Post, Get, Param, Patch } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Get,
+  Param,
+  Patch,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
@@ -10,6 +19,7 @@ import { CreatePolicyUseCase } from '../../application/use-case/create-policy.us
 import { ApiNotFoundResponse, ApiOkResponse } from '@nestjs/swagger';
 import { GetPolicyByIdUseCase } from '../../application/use-case/get-policy-by-id.use-case';
 import { GetPoliciesByCustomerUseCase } from '../../application/use-case/get-policies-by-customer.use-case';
+import { GetPoliciesUseCase } from '../../application/use-case/get-policies.use-case';
 import { ChangePolicyStatusDto } from '../../application/dtos/change-policy-status.dto';
 import { ChangePolicyStatusUseCase } from '../../application/use-case/change-policy-status.use-case';
 
@@ -20,8 +30,18 @@ export class PolicyController {
     private readonly createPolicyUseCase: CreatePolicyUseCase,
     private readonly getPolicyByIdUseCase: GetPolicyByIdUseCase,
     private readonly getPoliciesByCustomerUseCase: GetPoliciesByCustomerUseCase,
+    private readonly getPoliciesUseCase: GetPoliciesUseCase,
     private readonly changePolicyStatusUseCase: ChangePolicyStatusUseCase,
   ) {}
+
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ type: [PolicyResponseDto] })
+  async findAll(): Promise<PolicyResponseDto[]> {
+    const policies = await this.getPoliciesUseCase.execute();
+
+    return policies.map((policy) => PolicyResponseDto.fromDomain(policy));
+  }
 
   @Post()
   @ApiCreatedResponse({ type: PolicyResponseDto })
