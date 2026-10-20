@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
+import { QueryFailedError } from 'typeorm';
 import { EmailAlreadyExistsException } from '../../domain/exceptions/email-already-exists.exception';
 import { CustomerModel } from '../../domain/models/customer.model';
 import { CustomerRepositoryPort } from '../../domain/ports/customer-repository.port';
@@ -13,12 +14,12 @@ export class CreateCustomerUseCase {
   ) {}
 
   async execute(dto: CreateCustomerDto): Promise<CustomerModel> {
-    const existingCustomer = await this.customerRepository.findByEmail(
-      dto.email,
-    );
+    const email = dto.email.trim().toLowerCase();
+
+    const existingCustomer = await this.customerRepository.findByEmail(email);
 
     if (existingCustomer) {
-      throw new EmailAlreadyExistsException(dto.email);
+      throw new EmailAlreadyExistsException(email);
     }
 
     const now = new Date();
@@ -26,12 +27,32 @@ export class CreateCustomerUseCase {
     const customer = new CustomerModel(
       randomUUID(),
       dto.name,
-      dto.email,
+      email,
       true,
       now,
       now,
     );
 
-    return this.customerRepository.save(customer);
+    try {
+      return await this.customerRepository.save(customer);
+    } catch (error) {
+      // Carrera entre el findByEmail y el insert: si otra petición creó el mismo
+      // email en paralelo, el constraint UNIQUE de BD lanza 23505 → 409.
+      if (this.isUniqueViolation(error)) {
+        throw new EmailAlreadyExistsException(email);
+      }
+
+      throw error;
+    }
+  }
+
+  private isUniqueViolation(error: unknown): boolean {
+    if (!(error instanceof QueryFailedError)) {
+      return false;
+    }
+
+    const driverError = error.driverError as { code?: string };
+
+    return driverError.code === '23505';
   }
 }

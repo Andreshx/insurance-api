@@ -1,3 +1,4 @@
+import { BadRequestException } from '@nestjs/common';
 import { DomainExceptionFilter } from './domain-exception.filter';
 import { InvalidPolicyDataException } from '../../policies/domain/exceptions/invalid-policy-data.exception';
 import { InvalidStateTransitionException } from '../../policies/domain/exceptions/invalid-state-transition.exception';
@@ -137,5 +138,53 @@ describe('DomainExceptionFilter', () => {
         message: expect.stringContaining('a@b.com'),
       }),
     );
+  });
+
+  it('should preserve the HttpException body (e.g. ValidationPipe errors)', () => {
+    const response = createMockResponse();
+    const host = createMockHost(response);
+    const exception = new BadRequestException({
+      statusCode: 400,
+      message: ['name must be longer than or equal to 2 characters'],
+      error: 'Bad Request',
+    });
+
+    filter.catch(exception, host as any);
+
+    expect(response.status).toHaveBeenCalledWith(400);
+    expect(response.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        statusCode: 400,
+        message: ['name must be longer than or equal to 2 characters'],
+        error: 'Bad Request',
+      }),
+    );
+  });
+
+  it('should return a generic 500 JSON for unknown errors without exposing internals', () => {
+    const loggerErrorSpy = jest
+      .spyOn(filter['logger'], 'error')
+      .mockImplementation();
+    const response = createMockResponse();
+    const host = createMockHost(response);
+    const exception = new TypeError('cannot read property of undefined');
+
+    filter.catch(exception, host as any);
+
+    expect(response.status).toHaveBeenCalledWith(500);
+    expect(response.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        statusCode: 500,
+        error: 'InternalServerError',
+        message: 'Internal server error',
+        timestamp: expect.any(String),
+      }),
+    );
+    expect(loggerErrorSpy).toHaveBeenCalledWith(
+      'cannot read property of undefined',
+      expect.any(String),
+    );
+
+    loggerErrorSpy.mockRestore();
   });
 });

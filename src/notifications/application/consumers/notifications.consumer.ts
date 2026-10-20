@@ -25,7 +25,9 @@ export class NotificationsConsumer implements OnModuleInit, OnModuleDestroy {
     }
 
     this.connection = await connect(rabbitMqUrl);
+    this.registerConnectionHandlers();
     this.channel = await this.connection.createChannel();
+    this.registerChannelHandlers(this.channel);
 
     await this.channel.assertExchange(this.exchange, 'topic', {
       durable: true,
@@ -47,22 +49,55 @@ export class NotificationsConsumer implements OnModuleInit, OnModuleDestroy {
       return;
     }
 
-    const payload = JSON.parse(message.content.toString()) as {
-      customerId: string;
-      policyNumber: string;
-      oldStatus: string;
-      newStatus: string;
-    };
+    try {
+      const payload = JSON.parse(message.content.toString()) as {
+        customerId: string;
+        policyNumber: string;
+        oldStatus: string;
+        newStatus: string;
+      };
 
-    this.logger.log(
-      `Notification sent to customer ${payload.customerId} for policy ${payload.policyNumber}: ${payload.oldStatus} -> ${payload.newStatus}`,
-    );
+      this.logger.log(
+        `Notification sent to customer ${payload.customerId} for policy ${payload.policyNumber}: ${payload.oldStatus} -> ${payload.newStatus}`,
+      );
 
-    this.channel.ack(message);
+      this.channel.ack(message);
+    } catch (error) {
+      // Mensaje malformado: se descarta sin requeue para evitar un bucle
+      // infinito de redelivery (poison message).
+      this.logger.error(
+        `Discarding malformed message from ${this.queue}: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
+      this.channel.nack(message, false, false);
+    }
   }
 
   async onModuleDestroy(): Promise<void> {
     await this.channel?.close();
     await this.connection?.close();
+  }
+
+  // Sin estos listeners amqplib relanza el error como 'unhandled error event'
+  // y crashea el proceso completo (p. ej. al reiniciar el broker).
+  private registerConnectionHandlers(): void {
+    this.connection.on('error', (error: Error) => {
+      this.logger.error(`RabbitMQ connection error: ${error.message}`);
+    });
+
+    this.connection.on('close', () => {
+      this.logger.warn('RabbitMQ connection closed');
+    });
+  }
+
+  private registerChannelHandlers(channel: Channel): void {
+    channel.on('error', (error: Error) => {
+      this.logger.error(`RabbitMQ channel error: ${error.message}`);
+    });
+
+    channel.on('close', () => {
+      this.logger.warn('RabbitMQ channel closed');
+    });
   }
 }

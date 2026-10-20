@@ -106,11 +106,14 @@ describe('Insurance API (e2e)', () => {
         .expect(404);
     });
 
-    it('should return 500 when customer id is not a valid UUID', () => {
-      // UUID inválido en la URL causa error de PostgreSQL (tipo uuid)
+    it('should return 400 when customer id is not a valid UUID', () => {
       return request(app.getHttpServer())
         .get('/api/customers/not-a-uuid')
-        .expect(500);
+        .expect(400)
+        .then((res) => {
+          expect(res.body.statusCode).toBe(400);
+          expect(res.body.message).toBeDefined();
+        });
     });
 
     it('should return an empty list when no customers exist (GET /api/customers)', () => {
@@ -280,11 +283,14 @@ describe('Insurance API (e2e)', () => {
         .expect(404);
     });
 
-    it('should return 500 when policy id is not a valid UUID', () => {
-      // UUID inválido en la URL causa error de PostgreSQL (tipo uuid)
+    it('should return 400 when policy id is not a valid UUID', () => {
       return request(app.getHttpServer())
         .get('/api/policies/not-a-uuid')
-        .expect(500);
+        .expect(400)
+        .then((res) => {
+          expect(res.body.statusCode).toBe(400);
+          expect(res.body.message).toBeDefined();
+        });
     });
 
     it('should get policies by customer (GET /api/policies/customer/:customerId)', async () => {
@@ -487,12 +493,15 @@ describe('Insurance API (e2e)', () => {
         .expect(404);
     });
 
-    it('should return 500 when policy id is not a valid UUID for status change', () => {
-      // UUID inválido en la URL causa error de PostgreSQL (tipo uuid)
+    it('should return 400 when policy id is not a valid UUID for status change', () => {
       return request(app.getHttpServer())
         .patch('/api/policies/not-a-uuid/status')
         .send({ targetStatus: PolicyStatus.ISSUED })
-        .expect(500);
+        .expect(400)
+        .then((res) => {
+          expect(res.body.statusCode).toBe(400);
+          expect(res.body.message).toBeDefined();
+        });
     });
 
     it('should return 400 when targetStatus is not a valid enum', () => {
@@ -500,6 +509,47 @@ describe('Insurance API (e2e)', () => {
         .patch(`/api/policies/${policyId}/status`)
         .send({ targetStatus: 'EXPIRED' as any })
         .expect(400);
+    });
+  });
+
+  describe('Policy number sequence across API restarts', () => {
+    it('should not repeat the policy number after the API restarts', async () => {
+      const customer = await request(app.getHttpServer())
+        .post('/api/customers')
+        .send({ name: 'Restart Test', email: 'restart@example.com' })
+        .expect(201);
+
+      const firstPolicy = await request(app.getHttpServer())
+        .post('/api/policies')
+        .send(createPolicyDto(customer.body.id))
+        .expect(201);
+
+      // Simular un reinicio del API: se cierra la aplicación y se levanta una
+      // nueva instancia contra la MISMA base de datos (sin truncar).
+      await app.close();
+
+      const restartModule: TestingModule = await Test.createTestingModule({
+        imports: [AppModule],
+      }).compile();
+
+      app = restartModule.createNestApplication();
+      configureApp(app);
+      await app.init();
+
+      const secondPolicy = await request(app.getHttpServer())
+        .post('/api/policies')
+        .send(createPolicyDto(customer.body.id))
+        .expect(201);
+
+      // Sin el fix (PolicyNumberInitializer), la nueva instancia volvería a
+      // generar POL-YYYYMMDD-000001 y el UNIQUE de BD devolvería un 500.
+      expect(secondPolicy.body.policyNumber).not.toBe(
+        firstPolicy.body.policyNumber,
+      );
+
+      const firstSeq = parseInt(firstPolicy.body.policyNumber.slice(-6), 10);
+      const secondSeq = parseInt(secondPolicy.body.policyNumber.slice(-6), 10);
+      expect(secondSeq).toBe(firstSeq + 1);
     });
   });
 

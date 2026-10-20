@@ -477,6 +477,61 @@ Verificado mediante:
 * Transiciones inválidas → 400
 * Recursos inexistentes → 404
 * Email duplicado → 409
+* UUID inválido en la URL → 400
 
+---
+
+# Frontend
+
+En la carpeta `frontend/` se encuentra la aplicación React (Vite + TypeScript + Tailwind) que consume esta API.
+
+```bash
+cd frontend
+npm install --legacy-peer-deps
+npm run dev
 ```
+
+Disponible en:
+
+```text
+http://localhost:5173
 ```
+
+El CORS de la API está configurado para aceptar ese origen.
+
+---
+
+# Tests
+
+Requieren la infraestructura levantada (`docker compose up -d`: PostgreSQL y RabbitMQ).
+
+```bash
+# Unitarios (no requieren Docker)
+npm run test:unit
+
+# Integración (requieren PostgreSQL; corren en serie contra la misma BD)
+npm run test:integration
+
+# Todos los de src (unitarios + integración, en serie)
+npm test
+
+# End-to-end (requieren PostgreSQL y RabbitMQ; en serie por diseño: comparten BD)
+npm run test:e2e
+```
+
+Cobertura actual: 23 suites / 106 tests unitarios y de integración + 2 suites / 45 tests e2e.
+
+Los e2e reconstruyen la aplicación por test (incluye `PolicyNumberInitializer`), por lo que además validan la continuidad del número de póliza tras un reinicio real del API.
+
+---
+
+# Limitaciones conocidas
+
+Decisiones conscientes de alcance, identificadas en la revisión de código:
+
+* **Sin autenticación/autorización**: cualquier cliente puede consumir los endpoints. La única protección actual es el CORS restringido al origen del frontend (solo aplica a navegadores). En producción se debe añadir JWT/API keys con guards.
+* **Sin patrón Outbox**: el cambio de estado persiste en BD y luego publica el evento en RabbitMQ. Si el broker falla entre ambos pasos, el evento se pierde (el estado en BD no se revierte). Los handlers de error evitan que la API crashee.
+* **Secuenciador de números en memoria**: es correcto con una sola instancia del API (el `PolicyNumberInitializer` lo siembra desde BD al arrancar, y la restricción UNIQUE es la red de seguridad). Con múltiples instancias en paralelo podrían generarse números en conflicto; se recomienda mover la secuencia a una tabla en BD si se escala horizontalmente.
+* **Sin paginación en listados**: `GET /api/customers` y `GET /api/policies` devuelven todos los registros.
+* **Sin helmet ni rate limiting**: pendientes de agregar para un despliegue en producción.
+

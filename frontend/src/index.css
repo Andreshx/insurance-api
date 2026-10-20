@@ -1,0 +1,51 @@
+@import 'tailwindcss';
+
+@theme {
+  /* Palette: deep navy ink, cool surfaces, teal primary, amber accent */
+  --color-ink: #14202e;
+  --color-ink-soft: #3d4c5c;
+  --color-surface: #f7f9fb;
+  --color-card: #ffffff;
+  --color-primary: #0e7c7b;
+  --color-primary-dark: #0a5c5b;
+  --color-accent: #e85d04;
+  --color-line: #dce3ea;
+
+  /* Status colors */
+  --color-status-quoted: #64748b;
+  --color-status-issued: #2563eb;
+  --color-status-active: #16a34a;
+  --color-status-suspended: #d97706;
+  --color-status-cancelled: #dc2626;
+
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'IBM Plex Sans', sans-serif;
+}
+
+html {
+  font-family: var(--font-body);
+  color: var(--color-ink);
+  background: var(--color-surface);
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+}
+
+/* Visible keyboard focus everywhere */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

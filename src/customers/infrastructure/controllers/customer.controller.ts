@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  ParseUUIDPipe,
   Post,
 } from '@nestjs/common';
 import {
@@ -56,7 +57,9 @@ export class CustomerController {
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ type: CustomerResponseDto })
   @ApiNotFoundResponse({ description: 'Customer not found' })
-  async findById(@Param('id') id: string): Promise<CustomerResponseDto> {
+  async findById(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<CustomerResponseDto> {
     const customer = await this.getCustomerByIdUseCase.execute(id);
 
     return CustomerResponseDto.fromDomain(customer);

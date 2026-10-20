@@ -4,6 +4,7 @@ import {
   Post,
   Get,
   Param,
+  ParseUUIDPipe,
   Patch,
   HttpCode,
   HttpStatus,
@@ -11,12 +12,13 @@ import {
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import { CreatePolicyDto } from '../../application/dtos/create-policy.dto';
 import { PolicyResponseDto } from '../../application/dtos/policy-response.dto';
 import { CreatePolicyUseCase } from '../../application/use-case/create-policy.use-case';
-import { ApiNotFoundResponse, ApiOkResponse } from '@nestjs/swagger';
 import { GetPolicyByIdUseCase } from '../../application/use-case/get-policy-by-id.use-case';
 import { GetPoliciesByCustomerUseCase } from '../../application/use-case/get-policies-by-customer.use-case';
 import { GetPoliciesUseCase } from '../../application/use-case/get-policies.use-case';
@@ -59,7 +61,9 @@ export class PolicyController {
   @Get(':id')
   @ApiOkResponse({ type: PolicyResponseDto })
   @ApiNotFoundResponse({ description: 'Policy not found' })
-  async getById(@Param('id') id: string): Promise<PolicyResponseDto> {
+  async getById(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<PolicyResponseDto> {
     const policy = await this.getPolicyByIdUseCase.execute(id);
 
     return PolicyResponseDto.fromDomain(policy);
@@ -68,7 +72,7 @@ export class PolicyController {
   @Get('customer/:customerId')
   @ApiOkResponse({ type: [PolicyResponseDto] })
   async getByCustomer(
-    @Param('customerId') customerId: string,
+    @Param('customerId', ParseUUIDPipe) customerId: string,
   ): Promise<PolicyResponseDto[]> {
     const policies =
       await this.getPoliciesByCustomerUseCase.execute(customerId);
@@ -83,7 +87,7 @@ export class PolicyController {
     description: 'Invalid status transition',
   })
   async changeStatus(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() changePolicyStatusDto: ChangePolicyStatusDto,
   ): Promise<PolicyResponseDto> {
     const policy = await this.changePolicyStatusUseCase.execute(

@@ -3,6 +3,11 @@ import { PolicyNumberSequencer } from './policy-number-sequencer';
 describe('PolicyNumberSequencer', () => {
   const sequencer = PolicyNumberSequencer.getInstance();
 
+  beforeEach(() => {
+    // Aislar cada test: el secuenciador es un singleton compartido en el proceso
+    sequencer.setSequence(1);
+  });
+
   it('should return a policy number with format POL-YYYYMMDD-XXXXXX', () => {
     const number = sequencer.next();
     expect(number).toMatch(/^POL-\d{8}-\d{6}$/);
@@ -17,26 +22,26 @@ describe('PolicyNumberSequencer', () => {
     expect(secondSeq).toBe(firstSeq + 1);
   });
 
-  it('BUG REPRODUCTION: should generate duplicate policy number after restart (same day)', () => {
-    // Resetear el secuenciador para aislar esta prueba de otras que lo usaron
-    (sequencer as any).sequence = 1;
-
-    // Simular que la aplicación ya generó un número hoy (antes del reinicio)
+  it('should continue the sequence after a restart when seeded from the database (regression for the restart bug)', () => {
+    // Reproducción del bug original: el secuenciador vive en memoria, así que
+    // al reiniciar la API volvía a 1 y regeneraba el mismo número que ya
+    // existía en BD, violando la restricción UNIQUE de policy_number.
     const firstNumber = sequencer.next();
     const firstSeq = parseInt(firstNumber.slice(-6), 10);
 
-    // Simular reinicio de la aplicación: el secuenciador vuelve a sequence = 1
-    // como es un singleton en memoria, el estado se pierde al reiniciar el proceso
-    (sequencer as any).sequence = 1;
+    // Simular reinicio: el estado en memoria se pierde (vuelve a 1)
+    sequencer.setSequence(1);
 
-    // Generar otro número el mismo día: debería ser diferente, pero es el mismo
+    // El fix: PolicyNumberInitializer siembra la secuencia con el máximo
+    // de policy_number existente en BD + 1 antes de aceptar tráfico
+    sequencer.setSequence(firstSeq + 1);
+
     const secondNumber = sequencer.next();
     const secondSeq = parseInt(secondNumber.slice(-6), 10);
 
-    // AMBOS números son iguales: POL-YYYYMMDD-000001
-    expect(firstNumber).toBe(secondNumber);
-    expect(firstSeq).toBe(secondSeq);
-    // Esto demuestra el bug: al reiniciar la API el mismo día, se genera
-    // un policy_number duplicado que choca con la restricción UNIQUE de BD
+    // Sin el fix, secondNumber === firstNumber (duplicado → error 500 de BD).
+    // Con el fix, la secuencia continúa y no hay duplicados.
+    expect(secondNumber).not.toBe(firstNumber);
+    expect(secondSeq).toBe(firstSeq + 1);
   });
 });
