@@ -7,6 +7,7 @@ import type { RatingStrategyName } from '../../../api/types';
 import { Button } from '../../../shared/ui/Button';
 import { Select } from '../../../shared/ui/Select';
 import { Input } from '../../../shared/ui/Input';
+import { useToast } from '../../../shared/ui/Toast';
 import { useCreatePolicy } from '../hooks/usePolicies';
 import {
   branchLabels,
@@ -23,6 +24,7 @@ interface PolicyFormProps {
 export function PolicyForm({ customerOptions, defaultCustomerId }: PolicyFormProps) {
   const navigate = useNavigate();
   const createPolicy = useCreatePolicy();
+  const { showToast } = useToast();
   const [strategy, setStrategy] = useState<RatingStrategyName>('STANDARD');
 
   const {
@@ -58,6 +60,7 @@ export function PolicyForm({ customerOptions, defaultCustomerId }: PolicyFormPro
       },
       {
         onSuccess: (policy) => {
+          showToast('Póliza creada correctamente.', 'success');
           navigate(`/policies/${policy.id}`);
         },
       },

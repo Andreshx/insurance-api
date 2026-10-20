@@ -1,5 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createCustomer, getCustomerById, getCustomers } from '../api/customers.api';
+import type { UpdateCustomerRequest } from '../../../api/types';
+import {
+  createCustomer,
+  getCustomerById,
+  getCustomers,
+  updateCustomer,
+} from '../api/customers.api';
 
 export function useCustomers() {
   return useQuery({
@@ -21,6 +27,23 @@ export function useCreateCustomer() {
 
   return useMutation({
     mutationFn: createCustomer,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['customers'] });
+    },
+  });
+}
+
+export function useUpdateCustomer() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: UpdateCustomerRequest;
+    }) => updateCustomer(id, payload),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['customers'] });
     },

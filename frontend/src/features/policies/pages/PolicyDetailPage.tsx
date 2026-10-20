@@ -7,6 +7,7 @@ import { Button } from '../../../shared/ui/Button';
 import { Select } from '../../../shared/ui/Select';
 import { Spinner } from '../../../shared/ui/Spinner';
 import { StatusChip, statusLabels, validTransitions } from '../../../shared/ui/StatusChip';
+import { useToast } from '../../../shared/ui/Toast';
 import { useChangePolicyStatus, usePolicy } from '../hooks/usePolicies';
 import { branchLabels, strategyLabels } from '../validation';
 
@@ -14,6 +15,7 @@ export function PolicyDetailPage() {
   const { id = '' } = useParams();
   const { data: policy, isLoading, error } = usePolicy(id);
   const changeStatus = useChangePolicyStatus();
+  const { showToast } = useToast();
   const [targetStatus, setTargetStatus] = useState<PolicyStatus | ''>('');
 
   if (isLoading) return <Spinner />;
@@ -40,7 +42,13 @@ export function PolicyDetailPage() {
     changeStatus.mutate(
       { id: policy.id, targetStatus },
       {
-        onSuccess: () => setTargetStatus(''),
+        onSuccess: (updated) => {
+          setTargetStatus('');
+          showToast(
+            `La póliza ${policy.policyNumber} pasó a ${statusLabels[updated.status]}.`,
+            'success',
+          );
+        },
       },
     );
   };
@@ -117,11 +125,6 @@ export function PolicyDetailPage() {
         {changeStatus.isError && (
           <p className="text-sm text-status-cancelled" role="alert">
             {getApiErrorMessage(changeStatus.error)}
-          </p>
-        )}
-        {changeStatus.isSuccess && (
-          <p className="text-sm text-status-active" role="status">
-            Estado actualizado a {statusLabels[policy.status]}.
           </p>
         )}
       </section>

@@ -14,6 +14,12 @@ export interface CreateCustomerRequest {
   email: string;
 }
 
+/** Mirrors backend UpdateCustomerDto (PartialType of CreateCustomerDto). */
+export interface UpdateCustomerRequest {
+  name?: string;
+  email?: string;
+}
+
 export type PolicyBranch = 'AUTO' | 'LIFE' | 'HOME' | 'HEALTH';
 
 export type RatingStrategyName = 'STANDARD' | 'RISK_BASED' | 'LOYALTY';

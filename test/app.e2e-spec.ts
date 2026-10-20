@@ -153,6 +153,59 @@ describe('Insurance API (e2e)', () => {
           });
         });
     });
+
+    it('should update a customer (PATCH /api/customers/:id)', async () => {
+      const created = await request(app.getHttpServer())
+        .post('/api/customers')
+        .send(customerDto)
+        .expect(201);
+
+      const res = await request(app.getHttpServer())
+        .patch(`/api/customers/${created.body.id}`)
+        .send({ name: 'Andres Actualizado', email: 'actualizado@example.com' })
+        .expect(200);
+
+      expect(res.body.id).toBe(created.body.id);
+      expect(res.body.name).toBe('Andres Actualizado');
+      expect(res.body.email).toBe('actualizado@example.com');
+      expect(res.body.createdAt).toBeDefined();
+    });
+
+    it('should return 404 when updating a non-existing customer', () => {
+      return request(app.getHttpServer())
+        .patch('/api/customers/00000000-0000-0000-0000-000000000000')
+        .send({ name: 'Ghost' })
+        .expect(404);
+    });
+
+    it('should return 409 when updating to an email already in use', async () => {
+      await request(app.getHttpServer())
+        .post('/api/customers')
+        .send(customerDto)
+        .expect(201);
+
+      const created = await request(app.getHttpServer())
+        .post('/api/customers')
+        .send({ name: 'Maria', email: 'maria@example.com' })
+        .expect(201);
+
+      return request(app.getHttpServer())
+        .patch(`/api/customers/${created.body.id}`)
+        .send({ email: customerDto.email })
+        .expect(409);
+    });
+
+    it('should return 400 when updating with an invalid body', async () => {
+      const created = await request(app.getHttpServer())
+        .post('/api/customers')
+        .send(customerDto)
+        .expect(201);
+
+      return request(app.getHttpServer())
+        .patch(`/api/customers/${created.body.id}`)
+        .send({ email: 'not-an-email' })
+        .expect(400);
+    });
   });
 
   describe('Policies', () => {

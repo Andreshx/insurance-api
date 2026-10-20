@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { getApiErrorMessage } from '../../../api/client';
 import { Button } from '../../../shared/ui/Button';
 import { Input } from '../../../shared/ui/Input';
+import { useToast } from '../../../shared/ui/Toast';
 import { useCreateCustomer } from '../hooks/useCustomers';
 import {
   createCustomerSchema,
@@ -13,6 +14,7 @@ import {
 export function CustomerForm() {
   const navigate = useNavigate();
   const createCustomer = useCreateCustomer();
+  const { showToast } = useToast();
 
   const {
     register,
@@ -25,6 +27,7 @@ export function CustomerForm() {
   const onSubmit = (values: CreateCustomerForm) => {
     createCustomer.mutate(values, {
       onSuccess: (customer) => {
+        showToast('Cliente creado correctamente.', 'success');
         navigate(`/customers/${customer.id}`);
       },
     });

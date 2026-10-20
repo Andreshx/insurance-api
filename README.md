@@ -335,6 +335,23 @@ POST /api/customers
 GET /api/customers/:id
 ```
 
+### Actualizar cliente
+
+```http
+PATCH /api/customers/:id
+```
+
+Body (ambos campos son opcionales):
+
+```json
+{
+  "name": "Andres Espinosa",
+  "email": "andres@example.com"
+}
+```
+
+Devuelve `404` si el cliente no existe, `409` si el correo ya pertenece a otro cliente y `400` si el cuerpo no es válido.
+
 ---
 
 ## Policies
@@ -499,6 +516,12 @@ http://localhost:5173
 
 El CORS de la API está configurado para aceptar ese origen.
 
+Funcionalidades de la interfaz:
+
+* **Clientes**: listar, crear, ver detalle y editar nombre/correo (usa `PATCH /api/customers/:id`).
+* **Pólizas**: listar, crear y cambiar estado. El cambio de estado también se puede hacer directamente desde la tabla de pólizas del detalle del cliente, mostrando solo las transiciones válidas del state machine del backend.
+* **Notificaciones**: cada acción exitosa (crear cliente, crear póliza, editar cliente, cambiar estado) muestra un toast en la esquina superior derecha; los errores de la API se muestran como toast de error.
+
 ---
 
 # Tests
@@ -519,7 +542,7 @@ npm test
 npm run test:e2e
 ```
 
-Cobertura actual: 23 suites / 106 tests unitarios y de integración + 2 suites / 45 tests e2e.
+Cobertura actual: 24 suites / 112 tests unitarios y de integración + 2 suites / 49 tests e2e.
 
 Los e2e reconstruyen la aplicación por test (incluye `PolicyNumberInitializer`), por lo que además validan la continuidad del número de póliza tras un reinicio real del API.
 
