@@ -34,7 +34,7 @@ export function CustomerForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex max-w-md flex-col gap-4">
+    <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex max-w-md flex-col gap-4">
       <Input
         id="name"
         label="Nombre"

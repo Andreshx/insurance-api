@@ -10,6 +10,7 @@ import { useToast } from '../../../shared/ui/Toast';
 import { CustomerEditForm } from '../components/CustomerEditForm';
 import { useCustomer } from '../hooks/useCustomers';
 import { useChangePolicyStatus, usePoliciesByCustomer } from '../../policies/hooks/usePolicies';
+import { branchLabels } from '../../policies/validation';
 
 export function CustomerDetailPage() {
   const { id = '' } = useParams();
@@ -153,7 +154,7 @@ export function CustomerDetailPage() {
                           {policy.policyNumber}
                         </Link>
                       </td>
-                      <td className="px-4 py-3">{policy.branch}</td>
+                      <td className="px-4 py-3">{branchLabels[policy.branch] ?? policy.branch}</td>
                       <td className="px-4 py-3">
                         <StatusChip status={policy.status} />
                       </td>

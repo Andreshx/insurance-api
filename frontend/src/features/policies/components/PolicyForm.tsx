@@ -68,7 +68,7 @@ export function PolicyForm({ customerOptions, defaultCustomerId }: PolicyFormPro
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex max-w-md flex-col gap-4">
+    <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex max-w-md flex-col gap-4">
       <Select
         id="customerId"
         label="Cliente"

@@ -546,6 +546,25 @@ Cobertura actual: 24 suites / 112 tests unitarios y de integración + 2 suites /
 
 Los e2e reconstruyen la aplicación por test (incluye `PolicyNumberInitializer`), por lo que además validan la continuidad del número de póliza tras un reinicio real del API.
 
+## E2E del frontend (Playwright)
+
+Pruebas de interfaz en `frontend/e2e/` con Playwright (Chromium). Cubren los flujos de cliente y póliza end-to-end sobre el navegador real.
+
+Requisitos: backend corriendo en `http://localhost:3000` e infraestructura levantada (`docker compose up -d`). Playwright compila el frontend y lo sirve con `vite preview` en `:5173` automáticamente.
+
+```bash
+cd frontend
+npx playwright install chromium   # una sola vez
+npm run test:e2e                  # ejecuta la suite (headless)
+npm run test:e2e:ui               # modo interactivo
+npm run test:e2e:report           # abre el reporte HTML del último run
+```
+
+Cobertura actual: 14 tests. Incluyen navegación, creación de cliente con toast, validación de formulario (Zod), listado, edición de cliente (éxito, cancelar y conflicto 409 con toast de error), cambio de estado de póliza inline desde el detalle del cliente con toast, estado final de pólizas canceladas, estado vacío y creación/cambio de estado de póliza desde el detalle.
+
+Cada test siembra sus datos vía API con correos únicos, por lo que la suite puede correr repetidamente sin limpiar la BD.
+
+
 ---
 
 # Limitaciones conocidas

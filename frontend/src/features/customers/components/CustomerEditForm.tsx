@@ -40,12 +40,15 @@ export function CustomerEditForm({ customer, onCancel }: CustomerEditFormProps) 
           showToast('Cliente actualizado correctamente.', 'success');
           onCancel();
         },
+        onError: (error) => {
+          showToast(getApiErrorMessage(error), 'error');
+        },
       },
     );
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex max-w-md flex-col gap-4">
+    <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex max-w-md flex-col gap-4">
       <Input
         id="name"
         label="Nombre"
