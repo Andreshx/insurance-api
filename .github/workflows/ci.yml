@@ -68,7 +68,7 @@ jobs:
         run: npm run build
 
       - name: Unit tests with coverage
-        run: npm run test:cov
+        run: npm run test:unit -- --coverage
 
       - name: API tests
         run: npm run test:api
