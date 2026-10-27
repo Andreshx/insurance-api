@@ -92,7 +92,7 @@ jobs:
           done
 
       - name: API tests
-        run: npm run test:e2e
+        run: npx jest --config ./test/jest-e2e.json --runInBand test/app.e2e-spec.ts
 
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5.3.1
