@@ -71,7 +71,7 @@ jobs:
         run: npm run test:unit -- --coverage
 
       - name: API tests
-        run: npm run test:api
+        run: npm run test:e2e
 
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5.3.1
