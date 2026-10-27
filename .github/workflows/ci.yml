@@ -28,13 +28,16 @@ jobs:
 
       rabbitmq:
         image: rabbitmq:3-management
+        env:
+          RABBITMQ_DEFAULT_USER: guest
+          RABBITMQ_DEFAULT_PASS: guest
         ports:
           - 5672:5672
         options: >-
           --health-cmd "rabbitmq-diagnostics -q ping"
           --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --health-timeout 10s
+          --health-retries 15
 
     env:
       NODE_ENV: test
@@ -80,6 +83,14 @@ jobs:
       - name: Unit tests with coverage
         run: npm run test:unit -- --coverage
 
+      - name: Wait for RabbitMQ
+        run: |
+          for i in {1..60}; do
+            (echo > /dev/tcp/localhost/5672) >/dev/null 2>&1 && echo "RabbitMQ is ready" && break
+            echo "Waiting for RabbitMQ..."
+            sleep 2
+          done
+
       - name: API tests
         run: npm run test:e2e
 
@@ -109,13 +120,16 @@ jobs:
 
       rabbitmq:
         image: rabbitmq:3-management
+        env:
+          RABBITMQ_DEFAULT_USER: guest
+          RABBITMQ_DEFAULT_PASS: guest
         ports:
           - 5672:5672
         options: >-
           --health-cmd "rabbitmq-diagnostics -q ping"
           --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --health-timeout 10s
+          --health-retries 15
 
     env:
       NODE_ENV: test
