@@ -21,7 +21,7 @@ export class PolicyNumberInitializer implements OnModuleInit {
     for (const policy of policies) {
       const match = policy.getPolicyNumber().match(/(\d{6})$/);
       if (match) {
-        const seq = parseInt(match[1], 10);
+        const seq = Number.parseInt(match[1], 10);
         if (seq > maxSequence) {
           maxSequence = seq;
         }
